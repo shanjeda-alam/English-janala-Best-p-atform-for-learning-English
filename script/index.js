@@ -44,6 +44,11 @@ const manageSpinner=(status)=>{
 //     "id": 5
 //   }
 // }
+function pronounceWord(word) {
+  const utterance = new SpeechSynthesisUtterance(word);
+  utterance.lang = "en-US";
+  window.speechSynthesis.speak(utterance);
+}
 const loadLevelWord = (id) => {
  manageSpinner(true);
     const url = `https://openapi.programming-hero.com/api/level/${id}`;
@@ -111,7 +116,7 @@ const displayLevelWord = (words) => {
   <div class="flex justify-between items-center">
     <button onClick="loadWordDetail(${word.id})" class="btn bg-[18181B10%] hover:bg-[18181B80%]"><i class="fa-solid fa-circle-info"></i></button>
 
-    <button class="btn bg-[18181B10%] hover:bg-[18181B80%]"><i class="fa-solid fa-volume-high"></i></button>
+    <button onclick="pronounceWord('${word.word}')"  class="pronounceWord('${word.word}')" class="btn bg-[18181B10%] hover:bg-[18181B80%]"><i class="fa-solid fa-volume-high"></i></button>
   </div>
 
  </div>
@@ -140,3 +145,24 @@ const displayLesson = (lessons) => {
 
 };
 loadLessons();
+document.getElementById("btn-search").addEventListener("click", async () => {
+    const input = document.getElementById("input-search");
+    const searchValue = input.value.trim().toLowerCase();
+
+    manageSpinner(true);
+
+    const allWords = [];
+
+    for (let i = 1; i <= 10; i++) {
+        const res = await fetch(`https://openapi.programming-hero.com/api/level/${i}`);
+        const data = await res.json();
+        allWords.push(...data.data);
+    }
+
+    const filtered = allWords.filter(word =>
+        word.word.toLowerCase().includes(searchValue)
+    );
+
+    displayLevelWord(filtered);
+    manageSpinner(false);
+});
